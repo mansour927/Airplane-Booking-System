@@ -1,0 +1,2 @@
+booking_id,first_name,last_name,email,flight_number,origin,destination,depart_time,seat_number,booking_status,booked_at
+1,Raisha,Siddika,raisha@email.com,AB101,"New York",Miami,"2026-03-10 09:00:00",1A,CONFIRMED,"2026-03-03 22:20:16"
