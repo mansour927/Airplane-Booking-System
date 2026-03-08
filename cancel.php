@@ -4,15 +4,18 @@ require_once __DIR__ . '/../config/db.php';
 $booking_id = (int)($_GET['booking_id'] ?? 0);
 
 if ($booking_id <= 0) {
-    exit("Invalid booking.");
+    exit("Invalid booking ID.");
 }
 
 try {
-
     $pdo->beginTransaction();
 
-    // get seat id from booking
-    $stmt = $pdo->prepare("SELECT seat_id FROM bookings WHERE booking_id = ?");
+    // Get the seat_id for the booking
+    $stmt = $pdo->prepare("
+        SELECT seat_id
+        FROM bookings
+        WHERE booking_id = ?
+    ");
     $stmt->execute([$booking_id]);
     $booking = $stmt->fetch();
 
@@ -20,14 +23,28 @@ try {
         throw new Exception("Booking not found.");
     }
 
-    $seat_id = $booking['seat_id'];
+    $seat_id = (int)$booking['seat_id'];
 
-    // change booking status
-    $stmt = $pdo->prepare("UPDATE bookings SET booking_status = 'CANCELLED' WHERE booking_id = ?");
+    // Delete payment first (child table)
+    $stmt = $pdo->prepare("
+        DELETE FROM payments
+        WHERE booking_id = ?
+    ");
     $stmt->execute([$booking_id]);
 
-    // make seat available again
-    $stmt = $pdo->prepare("UPDATE flight_seats SET is_available = 1 WHERE seat_id = ?");
+   // Delete booking
+$stmt = $pdo->prepare("
+    DELETE FROM bookings
+    WHERE booking_id = ?
+");
+$stmt->execute([$booking_id]);
+
+    // Make seat available again
+    $stmt = $pdo->prepare("
+        UPDATE flight_seats
+        SET is_available = 1
+        WHERE seat_id = ?
+    ");
     $stmt->execute([$seat_id]);
 
     $pdo->commit();
@@ -35,17 +52,33 @@ try {
     header("Location: my_bookings.php");
     exit;
 
-} catch (Exception $e) {
+} catch (Throwable $e) {
+    if ($pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
+    exit("Cancel failed: " . htmlspecialchars($e->getMessage()));
 
-    $pdo->rollBack();
-    echo "Error cancelling booking.";
+?>
+    ?>
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <title>Cancel Booking</title>
+      <link rel="stylesheet" href="../assets/styles.css">
+    </head>
+    <body>
+    <div class="container">
+      <div class="card">
+        <div class="section">
+          <h1 class="section-title">Cancellation Error</h1>
+          <div class="alert"><?= htmlspecialchars($e->getMessage()) ?></div>
+          <p><a class="btn" href="bookings.php">Back to Bookings</a></p>
+        </div>
+      </div>
+    </div>
+    </body>
+    </html>
+    <?php
 }
 ?>
-
-<!doctype html>
-<html>
-<head></title>
-<link rel="stylesheet" href="../assets/styles.css"></head>
-<body>
-</body>
-</html>
