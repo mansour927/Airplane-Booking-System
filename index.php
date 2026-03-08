@@ -49,9 +49,10 @@ $flights = $stmt->fetchAll();
       <div>
         <h1>Airline Booking System</h1>
         <p>Search flights, book seats, and manage bookings</p>
+         
       </div>
     </div>
-    <a class="btn" href="my_bookings.php" style="text-decoration:none;">View Bookings</a>
+   
   </div>
 
   <div class="card">
@@ -73,40 +74,36 @@ $flights = $stmt->fetchAll();
 </form>
     </div>
 
-    <div class="table-wrap">
-     
-    </div>
-  </div>
+<div class="table-wrap">
+  <table>
+   
+    <tr>
+      <th>Flight</th>
+      <th>Route</th>
+      <th>Depart</th>
+      <th>Price</th>
+      <th>Seats</th>
+      <th>Action</th>
+    </tr>
 
-  <div class="footer">Made for CIS project</div>
+    <?php foreach ($flights as $f): ?>
+    <tr>
+      <td><?= htmlspecialchars($f['flight_number']) ?></td>
+      <td><?= htmlspecialchars($f['origin']) ?> → <?= htmlspecialchars($f['destination']) ?></td>
+      <td><?= htmlspecialchars($f['depart_time']) ?></td>
+      <td>$<?= htmlspecialchars($f['base_price']) ?></td>
+      <td><?= htmlspecialchars($f['seats_available']) ?></td>
+      
+      <td>
+        <a class="btn" href="book.php?flight_id=<?= (int)$f['flight_id'] ?>" style="text-decoration:none;">Book</a>
+      </td>
+    </tr>
+    <?php endforeach; ?>
+
+  </table>
 </div>
 
-
-
-<h2>Flights</h2>
-
-<table border="1">
-<tr>
-<th>Flight</th>
-<th>Route</th>
-<th>Depart</th>
-<th>Price</th>
-<th>Seats</th>
-</tr>
-
-<?php foreach ($flights as $f): ?>
-
-<tr>
-<td><?= $f['flight_number'] ?></td>
-<td><?= $f['origin'] ?> → <?= $f['destination'] ?></td>
-<td><?= $f['depart_time'] ?></td>
-<td>$<?= $f['base_price'] ?></td>
-<td><?= $f['seats_available'] ?></td>
-</tr>
-
-<?php endforeach; ?>
-
 </table>
-
+<td><p><a href="my_bookings.php">View Bookings</a></p></td>
 </body>
 </html>
