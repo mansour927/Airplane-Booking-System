@@ -14,6 +14,7 @@ JOIN passengers p ON b.passenger_id = p.passenger_id
 JOIN flights f ON b.flight_id = f.flight_id
 JOIN flight_seats s ON b.seat_id = s.seat_id
 ORDER BY b.booked_at DESC
+
 ";
 $rows = $pdo->query($sql)->fetchAll();
 ?>
@@ -39,7 +40,9 @@ $rows = $pdo->query($sql)->fetchAll();
         <td><?= htmlspecialchars($r['booking_status']) ?></td>
         <td>
       <?php if ($r['booking_status'] === 'CONFIRMED'): ?>
+
   <a href="cancel.php?booking_id=<?= (int)$r['booking_id'] ?>">Cancel</a>
+  
 <?php else: ?>
  
 <?php endif; ?>
